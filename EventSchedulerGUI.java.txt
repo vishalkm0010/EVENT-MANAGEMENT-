@@ -1,0 +1,129 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+
+class Event {
+    String name, date, time, venue, description;
+
+    Event(String name, String date, String time, String venue, String description) {
+        this.name = name;
+        this.date = date;
+        this.time = time;
+        this.venue = venue;
+        this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return name + " | " + date + " " + time + " @ " + venue + "\n" + description;
+    }
+}
+
+public class EventSchedulerGUI extends JFrame {
+    private JTextField txtName, txtDate, txtTime, txtVenue;
+    private JTextArea txtDescription;
+    private DefaultListModel<String> eventListModel;
+    private JList<String> eventList;
+    private ArrayList<Event> events;
+
+    public EventSchedulerGUI() {
+        setTitle("Event Scheduling System");
+        setSize(600, 500);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        events = new ArrayList<>();
+        eventListModel = new DefaultListModel<>();
+        eventList = new JList<>(eventListModel);
+
+        // --- Input Panel ---
+        JPanel inputPanel = new JPanel(new GridLayout(6, 2, 5, 5));
+        inputPanel.setBorder(BorderFactory.createTitledBorder("Add New Event"));
+
+        inputPanel.add(new JLabel("Event Name:"));
+        txtName = new JTextField();
+        inputPanel.add(txtName);
+
+        inputPanel.add(new JLabel("Date (dd-mm-yyyy):"));
+        txtDate = new JTextField();
+        inputPanel.add(txtDate);
+
+        inputPanel.add(new JLabel("Time (HH:mm):"));
+        txtTime = new JTextField();
+        inputPanel.add(txtTime);
+
+        inputPanel.add(new JLabel("Venue:"));
+        txtVenue = new JTextField();
+        inputPanel.add(txtVenue);
+
+        inputPanel.add(new JLabel("Description:"));
+        txtDescription = new JTextArea(3, 20);
+        inputPanel.add(new JScrollPane(txtDescription));
+
+        JButton btnAdd = new JButton("Add Event");
+        inputPanel.add(btnAdd);
+
+        // --- Event List Panel ---
+        JPanel listPanel = new JPanel(new BorderLayout());
+        listPanel.setBorder(BorderFactory.createTitledBorder("Scheduled Events"));
+        listPanel.add(new JScrollPane(eventList), BorderLayout.CENTER);
+
+        JButton btnDelete = new JButton("Delete Selected");
+        listPanel.add(btnDelete, BorderLayout.SOUTH);
+
+        // --- Add Panels ---
+        add(inputPanel, BorderLayout.NORTH);
+        add(listPanel, BorderLayout.CENTER);
+
+        // --- Event Handling ---
+        btnAdd.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String name = txtName.getText();
+                String date = txtDate.getText();
+                String time = txtTime.getText();
+                String venue = txtVenue.getText();
+                String desc = txtDescription.getText();
+
+                if (name.isEmpty() || date.isEmpty() || time.isEmpty() || venue.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Please fill all fields!");
+                    return;
+                }
+
+                Event newEvent = new Event(name, date, time, venue, desc);
+                events.add(newEvent);
+                eventListModel.addElement(newEvent.toString());
+
+                JOptionPane.showMessageDialog(null, "Event Added Successfully!");
+                clearFields();
+            }
+        });
+
+        btnDelete.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int index = eventList.getSelectedIndex();
+                if (index != -1) {
+                    events.remove(index);
+                    eventListModel.remove(index);
+                    JOptionPane.showMessageDialog(null, "Event Deleted!");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Please select an event to delete.");
+                }
+            }
+        });
+    }
+
+    private void clearFields() {
+        txtName.setText("");
+        txtDate.setText("");
+        txtTime.setText("");
+        txtVenue.setText("");
+        txtDescription.setText("");
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new EventSchedulerGUI().setVisible(true);
+        });
+    }
+}
